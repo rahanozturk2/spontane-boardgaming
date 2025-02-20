@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { db } from "../firebaseConfig";
-import { collection, getDocs, setDoc, doc } from "firebase/firestore";
+import { collection, getDocs, addDoc, query, where, onSnapshot } from "firebase/firestore";
 
 function Kullanici() {
   const [user, setUser] = useState(null);
-  const [games, setGames] = useState([]); // Oyun listesini sakla
-  const [selectedGame, setSelectedGame] = useState(""); // Seçilen oyun
+  const [games, setGames] = useState([]);
+  const [selectedGame, setSelectedGame] = useState("");
   const [ratings, setRatings] = useState({
     EğlenceKeyif: 0,
     StratejiDüşünme: 0,
@@ -18,22 +18,38 @@ function Kullanici() {
     GenelPuan: 0,
   });
 
+  const [userRatings, setUserRatings] = useState([]); // 🔹 Kullanıcının puanlarını saklar
+
   useEffect(() => {
-    // Kullanıcı giriş durumunu takip et
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        fetchUserRatings(currentUser.email);
+      }
     });
 
-    // Firestore'dan oyunları çek
     const fetchGames = async () => {
       const querySnapshot = await getDocs(collection(db, "games"));
-      setGames(querySnapshot.docs.map(doc => doc.data().name));
+      setGames(querySnapshot.docs.map((doc) => doc.data().name));
     };
 
     fetchGames();
     return () => unsubscribe();
   }, []);
+
+  // Kullanıcının kendi verdiği puanları çek
+  const fetchUserRatings = (userEmail) => {
+    const q = query(collection(db, "ratings"), where("user", "==", userEmail));
+    onSnapshot(q, (snapshot) => {
+      const userRatingsData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        game: doc.data().game,
+        ratings: doc.data().ratings,
+      }));
+      setUserRatings(userRatingsData);
+    });
+  };
 
   // Kullanıcının seçtiği puanı kaydetmesi
   const handleRatingChange = (category, value) => {
@@ -43,29 +59,21 @@ function Kullanici() {
     }));
   };
 
-  // Firestore'a verileri kaydetme (Tekrar puan verirken önceki silinir)
+  // Firestore'a verileri kaydetme
   const handleSubmit = async () => {
     if (!selectedGame) {
       alert("Lütfen bir oyun seçin!");
       return;
     }
-    if (!user) {
-      alert("Puan kaydetmek için giriş yapmalısınız!");
-      return;
-    }
 
     try {
-      // Kullanıcı ve oyun bazlı tekil bir belge oluştur (Eski veriyi silip yeni veriyi ekler)
-      const ratingRef = doc(db, "ratings", `${user.uid}_${selectedGame}`);
-
-      await setDoc(ratingRef, {
-        user: user.email,
+      await addDoc(collection(db, "ratings"), {
+        user: user?.email || "Anonim",
         game: selectedGame,
         ratings,
         timestamp: new Date(),
       });
-
-      alert("Puan başarıyla güncellendi!");
+      alert("Puanlar başarıyla kaydedildi!");
     } catch (error) {
       console.error("Puan kaydedilemedi:", error);
       alert("Bir hata oluştu, tekrar deneyin!");
@@ -76,32 +84,31 @@ function Kullanici() {
     <div className="page-content">
       <h2>Kullanıcı Puanlama</h2>
 
-      {/* Kullanıcı giriş yapmamışsa uyarı */}
       {!user ? (
         <p>Lütfen giriş yapın.</p>
       ) : (
         <>
-          {/* Dropdown - Oyun Seçimi */}
+          {/* Oyun Seçme ve Puanlama Bölümü */}
           <label>Oyun Seç:</label>
           <select value={selectedGame} onChange={(e) => setSelectedGame(e.target.value)}>
             <option value="">Oyun Seçiniz</option>
             {games.map((game, index) => (
-              <option key={index} value={game}>{game}</option>
+              <option key={index} value={game}>
+                {game}
+              </option>
             ))}
           </select>
 
-          {/* Puanlama Alanları */}
           {selectedGame && (
             <>
               {Object.keys(ratings).map((category, index) => (
                 <div key={index}>
                   <label>{category.replace(/([A-Z])/g, " $1")}: </label>
-                  <select
-                    value={ratings[category]}
-                    onChange={(e) => handleRatingChange(category, e.target.value)}
-                  >
+                  <select value={ratings[category]} onChange={(e) => handleRatingChange(category, e.target.value)}>
                     {[...Array(11).keys()].map((num) => (
-                      <option key={num} value={num}>{num}</option>
+                      <option key={num} value={num}>
+                        {num}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -109,6 +116,43 @@ function Kullanici() {
 
               <button onClick={handleSubmit}>Puanları Kaydet</button>
             </>
+          )}
+
+          {/* 🔹 Kullanıcının Kendi Puanlarını Gösteren Tablo */}
+          <h3>Senin Puanların</h3>
+          {userRatings.length > 0 ? (
+            <table border="1" style={{ width: "100%", marginTop: "20px", textAlign: "center" }}>
+              <thead>
+                <tr>
+                  <th>Oyun Adı</th>
+                  <th>Eğlence/Keyif</th>
+                  <th>Strateji/Düşünme</th>
+                  <th>Basitlik</th>
+                  <th>Tekrar Oynanabilirlik</th>
+                  <th>Rekabet Dengesi</th>
+                  <th>Görsellik/Tema</th>
+                  <th>Sosyal Etkileşim</th>
+                  <th>Genel Puan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {userRatings.map((rating) => (
+                  <tr key={rating.id}>
+                    <td>{rating.game}</td>
+                    <td>{rating.ratings.EğlenceKeyif}</td>
+                    <td>{rating.ratings.StratejiDüşünme}</td>
+                    <td>{rating.ratings.Basitlik}</td>
+                    <td>{rating.ratings.TekrarOynanabilirlik}</td>
+                    <td>{rating.ratings.RekabetDengesi}</td>
+                    <td>{rating.ratings.GörsellikTema}</td>
+                    <td>{rating.ratings.SosyalEtkileşim}</td>
+                    <td>{rating.ratings.GenelPuan}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>Henüz herhangi bir oyun için puan vermedin.</p>
           )}
         </>
       )}
