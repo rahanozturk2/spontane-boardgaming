@@ -25,4 +25,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; // ✅ Sadece bir tane export default olmalı!

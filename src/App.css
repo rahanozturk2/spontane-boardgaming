@@ -29,3 +29,23 @@ nav {
   align-items: center;
   overflow: hidden; /* 🔴 Sayfanın taşmasını engeller */
 }
+
+html, body {
+  height: 100%;
+  background-color: #111 !important; /* 🔴 Siyah arka planı zorla uygula */
+  color: white;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* 🔴 Yan kaymayı önler */
+}
+
+.app-container {
+  min-height: 100vh;
+  background-color: #111; /* 🔴 Arka planı yine siyah yapıyoruz */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
