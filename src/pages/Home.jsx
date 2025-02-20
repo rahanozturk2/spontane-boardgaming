@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
+import "../styles/Home.css"; // 🔴 CSS dosyasını eklemeyi unutma!
 
 function Home() {
   const [games, setGames] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "desc" });
 
   useEffect(() => {
-    const fetchGamesWithRatings = async () => {
-      const ratingsSnapshot = await getDocs(collection(db, "ratings"));
+    const unsubscribe = onSnapshot(collection(db, "ratings"), (snapshot) => {
       const ratingsData = {};
 
-      ratingsSnapshot.docs.forEach((doc) => {
+      snapshot.docs.forEach((doc) => {
         const { game, ratings } = doc.data();
         if (!ratingsData[game]) {
           ratingsData[game] = { ...ratings, count: 1 };
@@ -33,12 +33,12 @@ function Home() {
       });
 
       setGames(formattedGames);
-    };
+    });
 
-    fetchGamesWithRatings();
+    return () => unsubscribe(); // Dinlemeyi durdur
   }, []);
 
-  // Sıralama fonksiyonu
+  // **Sıralama fonksiyonu**
   const handleSort = (key) => {
     let direction = "desc";
     if (sortConfig.key === key && sortConfig.direction === "desc") {
@@ -61,33 +61,44 @@ function Home() {
     <div className="page-content">
       <h2>Oyun Puanları</h2>
       {games.length > 0 ? (
-        <table border="1">
-          <thead>
-            <tr>
-              <th>Oyun Adı</th>
-              {["EğlenceKeyif", "StratejiDüşünme", "Basitlik", "TekrarOynanabilirlik", "RekabetDengesi", "GörsellikTema", "SosyalEtkileşim", "GenelPuan"].map((key) => (
-                <th key={key} onClick={() => handleSort(key)} style={{ cursor: "pointer" }}>
-                  {key.replace(/([A-Z])/g, " $1")} {sortConfig.key === key ? (sortConfig.direction === "desc" ? "🔽" : "🔼") : ""}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {games.map((game, index) => (
-              <tr key={index}>
-                <td>{game.name}</td>
-                <td>{game.EğlenceKeyif}</td>
-                <td>{game.StratejiDüşünme}</td>
-                <td>{game.Basitlik}</td>
-                <td>{game.TekrarOynanabilirlik}</td>
-                <td>{game.RekabetDengesi}</td>
-                <td>{game.GörsellikTema}</td>
-                <td>{game.SosyalEtkileşim}</td>
-                <td>{game.GenelPuan}</td>
+        <div className="table-container">
+          <table className="styled-table">
+            <thead>
+              <tr>
+                <th className="game-name">Oyun Adı</th>
+                {[
+                  "EğlenceKeyif",
+                  "StratejiDüşünme",
+                  "Basitlik",
+                  "TekrarOynanabilirlik",
+                  "RekabetDengesi",
+                  "GörsellikTema",
+                  "SosyalEtkileşim",
+                  "GenelPuan",
+                ].map((key) => (
+                  <th key={key} className="score-column" onClick={() => handleSort(key)} style={{ cursor: "pointer" }}>
+                    {key.replace(/([A-Z])/g, " $1")} {sortConfig.key === key ? (sortConfig.direction === "desc" ? "🔽" : "🔼") : ""}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {games.map((game, index) => (
+                <tr key={index}>
+                  <td className="game-name">{game.name}</td>
+                  <td className="score-column">{game.EğlenceKeyif || "?"}</td>
+                  <td className="score-column">{game.StratejiDüşünme || "?"}</td>
+                  <td className="score-column">{game.Basitlik || "?"}</td>
+                  <td className="score-column">{game.TekrarOynanabilirlik || "?"}</td>
+                  <td className="score-column">{game.RekabetDengesi || "?"}</td>
+                  <td className="score-column">{game.GörsellikTema || "?"}</td>
+                  <td className="score-column">{game.SosyalEtkileşim || "?"}</td>
+                  <td className="score-column">{game.GenelPuan || "?"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <p>Henüz bir oyun puanlanmadı.</p>
       )}

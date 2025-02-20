@@ -1,0 +1,61 @@
+/* 📌 Home.css - Tabloyu mobil uyumlu hale getirdik, ortaladık ve genişlik ayarladık */
+
+.table-container {
+  overflow-x: auto; /* Mobilde kaydırma için */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.styled-table {
+  width: 90%;
+  border-collapse: collapse;
+  text-align: center;
+  background-color: #222;
+  color: white;
+  margin: 20px auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.styled-table th, .styled-table td {
+  padding: 12px;
+  border: 1px solid #444;
+  text-align: center;
+}
+
+.styled-table th {
+  background-color: #333;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.styled-table tr:hover {
+  background-color: #444;
+}
+
+.styled-table .game-name {
+  width: 25%; /* Oyun adı daha geniş olacak */
+  text-align: left;
+  padding-left: 15px;
+}
+
+.styled-table td {
+  width: 9.5%; /* Puan sütunları eşit genişlikte */
+}
+
+/* 📌 Mobil Uyumluluk */
+@media (max-width: 768px) {
+  .styled-table {
+    width: 100%;
+  }
+
+  .styled-table th, .styled-table td {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .styled-table .game-name {
+    width: 35%;
+  }
+}

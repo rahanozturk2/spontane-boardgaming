@@ -1,38 +1,59 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebaseConfig"; // 🔴 Hata buradaysa bu satırı kontrol et!
-import { collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { db } from "../firebaseConfig"; 
+import { collection, addDoc, deleteDoc, doc, query, where, onSnapshot, getDocs } from "firebase/firestore";
 
 function Açıklamalar() {
-  const [gameName, setGameName] = useState(""); // Yeni oyun adı
-  const [games, setGames] = useState([]); // Firebase'deki oyun listesi
-  const [selectedGame, setSelectedGame] = useState(null); // Seçili oyun menüsü
+  const [gameName, setGameName] = useState(""); 
+  const [games, setGames] = useState([]); 
+  const [selectedGame, setSelectedGame] = useState(null);
 
-  // 📌 Firestore'dan oyunları çek
+  // 📌 Firestore'dan oyunları gerçek zamanlı dinle
   useEffect(() => {
-    const fetchGames = async () => {
-      const querySnapshot = await getDocs(collection(db, "games"));
-      const gamesList = querySnapshot.docs.map(doc => ({
+    const unsubscribe = onSnapshot(collection(db, "games"), (snapshot) => {
+      const gamesList = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
       setGames(gamesList);
-    };
+    });
 
-    fetchGames();
+    return () => unsubscribe(); // Bileşen kaldırıldığında dinlemeyi durdur
   }, []);
 
   // 📌 Yeni oyun ekleme fonksiyonu
   const handleAddGame = async () => {
-    if (gameName.trim() === "") return; // Boş giriş engelleniyor
-    await addDoc(collection(db, "games"), { name: gameName });
-    setGameName(""); // Input'u temizle
-    window.location.reload(); // Sayfayı yenileyerek güncelleme yap
+    if (gameName.trim() === "") return; 
+    try {
+      await addDoc(collection(db, "games"), { name: gameName });
+      setGameName(""); // Input'u temizle
+    } catch (error) {
+      console.error("Oyun eklenemedi:", error);
+    }
   };
 
-  // 📌 Oyun silme fonksiyonu
-  const handleDeleteGame = async (gameId) => {
-    await deleteDoc(doc(db, "games", gameId));
-    setGames(games.filter(game => game.id !== gameId)); // Listeyi güncelle
+  // 📌 Oyun ve puanlarını Firestore'dan kaldırma
+  const handleDeleteGame = async (gameId, gameName) => {
+    try {
+      // **1️⃣ Firestore "games" koleksiyonundan oyunu kaldır**
+      await deleteDoc(doc(db, "games", gameId));
+      console.log(`Oyun silindi: ${gameName}`);
+
+      // **2️⃣ "ratings" koleksiyonundan ilgili puanları temizle**
+      const ratingsQuery = query(collection(db, "ratings"), where("game", "==", gameName));
+      const ratingsSnapshot = await getDocs(ratingsQuery);
+
+      if (!ratingsSnapshot.empty) {
+        ratingsSnapshot.forEach(async (ratingDoc) => {
+          await deleteDoc(doc(db, "ratings", ratingDoc.id));
+          console.log(`Silinen puan: ${ratingDoc.id}`);
+        });
+      }
+
+      alert(`"${gameName}" oyunu ve puanları başarıyla kaldırıldı.`);
+    } catch (error) {
+      console.error("🔥 Hata: Oyun silinemedi:", error);
+      alert("Bir hata oluştu, tekrar deneyin.");
+    }
   };
 
   return (
@@ -74,13 +95,30 @@ function Açıklamalar() {
       <h3>Eklenen Oyunlar:</h3>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {games.map((game) => (
-          <li key={game.id} style={{ fontSize: "18px", margin: "10px 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <li 
+            key={game.id} 
+            onClick={() => setSelectedGame(selectedGame === game.id ? null : game.id)} 
+            style={{ 
+              fontSize: "18px", 
+              margin: "10px 0", 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center",
+              cursor: "pointer",
+              background: selectedGame === game.id ? "#444" : "transparent",
+              padding: "5px 10px",
+              borderRadius: "5px"
+            }}
+          >
             <span>{game.name}</span>
 
             {/* Menü Butonu */}
             <div style={{ position: "relative", marginLeft: "10px" }}>
               <button
-                onClick={() => setSelectedGame(selectedGame === game.id ? null : game.id)}
+                onClick={(e) => {
+                  e.stopPropagation(); 
+                  setSelectedGame(selectedGame === game.id ? null : game.id);
+                }}
                 style={{
                   padding: "5px",
                   fontSize: "14px",
@@ -106,7 +144,7 @@ function Açıklamalar() {
                   border: "1px solid gray"
                 }}>
                   <button
-                    onClick={() => handleDeleteGame(game.id)}
+                    onClick={() => handleDeleteGame(game.id, game.name)}
                     style={{
                       padding: "5px 10px",
                       fontSize: "14px",

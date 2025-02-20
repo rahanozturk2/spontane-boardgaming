@@ -7,7 +7,7 @@ function Sidebar() {
       left: 0,
       top: 0,
       height: "100vh",
-      width: "60px",
+      width: "30px",
       background: "linear-gradient(to top, #222, #111)",
       display: "flex",
       alignItems: "center",
@@ -20,7 +20,7 @@ function Sidebar() {
       transform: "rotate(180deg)",
       transformOrigin: "center",
       whiteSpace: "nowrap",
-      borderLeft: "5px solid white",
+      borderLeft: "2px solid white",
       letterSpacing: "25px" /* 🔴 Boşlukları artırdık */
     }}>
       Spontane-Boardgaming

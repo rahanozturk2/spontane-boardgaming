@@ -1,51 +1,132 @@
+/* Genel ayarlar */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #111; /* Siyah Arka Plan */
-  color: white; /* Yazı rengi beyaz */
+  font-family: 'Arial', sans-serif;
+  background-color: #111; /* Koyu tema */
+  color: white;
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* 🔴 Yan kaymayı önler */
+  overflow-x: hidden;
 }
 
-nav {
-  position: fixed;
-  top: 0;
-  left: 60px; /* Sidebar genişliği kadar kaydırıldı */
-  width: calc(100% - 60px); /* Navbar genişliği Sidebar'dan sonra başlasın */
-  background: #222;
-  color: white;
-  padding: 15px 20px;
-  z-index: 999;
-}
-
-/* Eğer .page-content çalışıyorsa, bu da kaydırmayı sağlar */
+/* Sayfa içeriği */
 .page-content {
-  margin-left: 80px; /* Sidebar'ın genişliği kadar içeriği kaydır */
-  padding: 80px 20px; /* Navbar ile çakışmaması için üst boşluk bırakıldı */
-  min-height: 100vh; /* İçerik tam ekran boyutuna gelsin */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden; /* 🔴 Sayfanın taşmasını engeller */
-}
-
-html, body {
-  height: 100%;
-  background-color: #111 !important; /* 🔴 Siyah arka planı zorla uygula */
-  color: white;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* 🔴 Yan kaymayı önler */
-}
-
-.app-container {
-  min-height: 100vh;
-  background-color: #111; /* 🔴 Arka planı yine siyah yapıyoruz */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  max-width: 900px; /* Mobil için genişlik sınırı */
+  margin: auto;
   padding: 20px;
+}
+
+/* Başlık */
+h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+/* Tablo */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #222;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Tablo başlıkları */
+th {
+  background: #333;
+  color: white;
+  padding: 12px;
+  text-align: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Tablo satırları */
+td {
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Alternatif satır rengi */
+tr:nth-child(even) {
+  background: #1a1a1a;
+}
+
+/* Mobilde kaydırılabilir tablo */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  th, td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Butonlar */
+button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #218838;
+}
+
+/* Silme butonu */
+button.delete-btn {
+  background: #d9534f;
+}
+
+button.delete-btn:hover {
+  background: #c9302c;
+}
+
+/* Giriş alanları */
+input, select {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid gray;
+  width: 100%;
+  max-width: 300px;
+  margin: 10px 0;
+}
+
+/* Liste öğeleri */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: #222;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Menü butonu */
+.menu-btn {
+  background: #555;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
 }
