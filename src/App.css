@@ -1,7 +1,7 @@
-/* Genel ayarlar */
+/* Genel Ayarlar */
 body {
   font-family: 'Arial', sans-serif;
-  background-color: #111; /* Koyu tema */
+  background-color: #111;
   color: white;
   margin: 0;
   padding: 0;
@@ -10,7 +10,7 @@ body {
 
 /* Sayfa içeriği */
 .page-content {
-  max-width: 900px; /* Mobil için genişlik sınırı */
+  max-width: 900px;
   margin: auto;
   padding: 20px;
 }
@@ -22,7 +22,7 @@ h2 {
   margin-bottom: 20px;
 }
 
-/* Tablo */
+/* 📌 Tablonun Genel Ayarları */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -31,7 +31,7 @@ table {
   overflow: hidden;
 }
 
-/* Tablo başlıkları */
+/* 📌 Tablo Başlıkları */
 th {
   background: #333;
   color: white;
@@ -41,19 +41,30 @@ th {
   cursor: pointer;
 }
 
-/* Tablo satırları */
+/* 📌 Tablo İçeriği */
 td {
-  padding: 10px;
+  padding: 12px;
   text-align: center;
   font-size: 14px;
 }
 
-/* Alternatif satır rengi */
+/* 📌 Alternatif Satır Renkleri */
 tr:nth-child(even) {
   background: #1a1a1a;
 }
 
-/* Mobilde kaydırılabilir tablo */
+/* 📌 Tüm Sütunlar Aynı Genişlikte Olacak */
+th, td {
+  width: 12%;
+}
+
+th:first-child, td:first-child {
+  width: 30%; /* 🔴 Oyun adı daha geniş olacak */
+  text-align: left;
+  padding-left: 15px;
+}
+
+/* 📌 Mobilde Kaydırılabilir Tablo */
 @media (max-width: 768px) {
   table {
     display: block;
@@ -66,12 +77,16 @@ tr:nth-child(even) {
     padding: 8px;
   }
 
+  th:first-child, td:first-child {
+    width: 40%;
+  }
+
   h2 {
     font-size: 1.5rem;
   }
 }
 
-/* Butonlar */
+/* 📌 Butonlar */
 button {
   background: #28a745;
   color: white;
@@ -87,7 +102,7 @@ button:hover {
   background: #218838;
 }
 
-/* Silme butonu */
+/* 📌 Silme Butonu */
 button.delete-btn {
   background: #d9534f;
 }
@@ -96,7 +111,7 @@ button.delete-btn:hover {
   background: #c9302c;
 }
 
-/* Giriş alanları */
+/* 📌 Giriş Alanları */
 input, select {
   padding: 10px;
   font-size: 16px;
@@ -107,7 +122,7 @@ input, select {
   margin: 10px 0;
 }
 
-/* Liste öğeleri */
+/* 📌 Liste Öğeleri */
 ul {
   list-style: none;
   padding: 0;
@@ -123,7 +138,7 @@ li {
   align-items: center;
 }
 
-/* Menü butonu */
+/* 📌 Menü Butonu */
 .menu-btn {
   background: #555;
   padding: 5px;

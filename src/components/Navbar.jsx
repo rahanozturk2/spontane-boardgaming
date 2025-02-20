@@ -12,7 +12,7 @@ function Navbar() {
       color: "white", 
       padding: "15px 20px",
       display: "flex", 
-      justifyContent: "center",
+      justifyContent: "flex-start", /* 🔴 SOLA DAYALI YAPILDI */
       alignItems: "center",
       zIndex: 1000
     }}>
@@ -23,35 +23,17 @@ function Navbar() {
         padding: "0", 
         alignItems: "center"
       }}>
-        <li style={{ padding: "0 15px", position: "relative" }}>
+        <li style={{ padding: "0 15px" }}>
           <Link to="/" style={{ color: "white", textDecoration: "none" }}>Ana Sayfa</Link>
         </li>
-        <div style={{
-          height: "20px", 
-          width: "2px", 
-          background: "white", 
-          margin: "0 10px"
-        }}></div>
-        <li style={{ padding: "0 15px", position: "relative" }}>
+        <li style={{ padding: "0 15px" }}>
           <Link to="/aciklamalar" style={{ color: "white", textDecoration: "none" }}>Açıklamalar</Link>
         </li>
-        <div style={{
-          height: "20px", 
-          width: "2px", 
-          background: "white", 
-          margin: "0 10px"
-        }}></div>
-        <li style={{ padding: "0 15px", position: "relative" }}>
-          <Link to="/login" style={{ color: "white", textDecoration: "none" }}>Kullanıcı Girişi</Link>
+        <li style={{ padding: "0 15px" }}>
+          <Link to="/login" style={{ color: "white", textDecoration: "none" }}>Giriş</Link>
         </li>
-        <div style={{
-          height: "20px", 
-          width: "2px", 
-          background: "white", 
-          margin: "0 10px"
-        }}></div>
-        <li style={{ padding: "0 15px", position: "relative" }}>
-          <Link to="/kullanici" style={{ color: "white", textDecoration: "none" }}>Kullanıcı Sayfası</Link>
+        <li style={{ padding: "0 15px" }}>
+          <Link to="/kullanici" style={{ color: "white", textDecoration: "none" }}>Kullanıcı</Link>
         </li>
       </ul>
     </nav>
