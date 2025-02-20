@@ -1,15 +1,28 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
+import Home from "./pages/Home";
+import Açıklamalar from "./pages/Açıklamalar";
+import Login from "./pages/Login";
+import Kullanici from "./pages/Kullanici";
 
 function App() {
   return (
-    <div>
-      <h1>Hello World</h1>
-    </div>
+    <Router>
+      <Sidebar /> {/* Sol Sidebar */}
+      <Navbar /> {/* Üst Menü */}
+      {/* 🔴 Bütün Routes bileşenini kaydırmak için yeni div ekledik */}
+      <div style={{ marginLeft: "80px", padding: "80px 20px" }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/aciklamalar" element={<Açıklamalar />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/kullanici" element={<Kullanici />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
 export default App;
-
