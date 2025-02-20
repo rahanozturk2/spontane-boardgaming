@@ -7,8 +7,9 @@
   justify-content: center;
 }
 
+/* Tablonun genel stilini koruyoruz */
 .styled-table {
-  width: 90%;
+  width: 100%;
   border-collapse: collapse;
   text-align: center;
   background-color: #222;
@@ -18,44 +19,33 @@
   overflow: hidden;
 }
 
+/* Tüm hücreler için ortalama */
 .styled-table th, .styled-table td {
   padding: 12px;
   border: 1px solid #444;
   text-align: center;
 }
 
+/* Başlıkları vurgula */
 .styled-table th {
   background-color: #333;
   font-weight: bold;
   cursor: pointer;
 }
 
+/* Hover efekti */
 .styled-table tr:hover {
   background-color: #444;
 }
 
+/* 🔴 Oyun adı genişletildi */
 .styled-table .game-name {
-  width: 25%; /* Oyun adı daha geniş olacak */
+  width: 30%;  /* Oyun adı sütunu %30 genişlikte */
   text-align: left;
   padding-left: 15px;
 }
 
-.styled-table td {
-  width: 9.5%; /* Puan sütunları eşit genişlikte */
-}
-
-/* 📌 Mobil Uyumluluk */
-@media (max-width: 768px) {
-  .styled-table {
-    width: 100%;
-  }
-
-  .styled-table th, .styled-table td {
-    font-size: 14px;
-    padding: 8px;
-  }
-
-  .styled-table .game-name {
-    width: 35%;
-  }
+/* 🔴 Puan sütunlarını eşit hale getirdik */
+.styled-table .score-column {
+  width: calc(70% / 8); /* Geriye kalan alanı 8 sütuna eşit paylaştır */
 }
