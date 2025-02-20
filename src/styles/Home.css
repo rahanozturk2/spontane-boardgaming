@@ -1,13 +1,10 @@
-/* 📌 Home.css - Tabloyu mobil uyumlu hale getirdik, ortaladık ve genişlik ayarladık */
-
 .table-container {
-  overflow-x: auto; /* Mobilde kaydırma için */
+  overflow-x: auto; /* Yatay kaydırmayı aktif eder */
   width: 100%;
   display: flex;
   justify-content: center;
 }
 
-/* Tablonun genel stilini koruyoruz */
 .styled-table {
   width: 100%;
   border-collapse: collapse;
@@ -19,33 +16,43 @@
   overflow: hidden;
 }
 
-/* Tüm hücreler için ortalama */
 .styled-table th, .styled-table td {
   padding: 12px;
   border: 1px solid #444;
   text-align: center;
+  white-space: nowrap; /* Metnin kaymasını önler */
 }
 
-/* Başlıkları vurgula */
-.styled-table th {
-  background-color: #333;
-  font-weight: bold;
-  cursor: pointer;
+/* 🔴 İlk sütunu sabit yapıyoruz */
+.styled-table th:first-child,
+.styled-table td:first-child {
+  position: sticky;
+  left: 0;
+  background-color: #333; /* Arka plan rengi, okunaklı olması için */
+  z-index: 10;
+  text-align: left;
+  padding-left: 15px;
+  min-width: 150px; /* Oyun adının genişliği */
 }
 
-/* Hover efekti */
+/* 📌 Alternatif satır renkleri */
+.styled-table tr:nth-child(even) {
+  background-color: #1a1a1a;
+}
+
+.styled-table tr:nth-child(odd) {
+  background-color: #2a2a2a;
+}
+
+/* Satır üzerine gelindiğinde renk değiştir */
 .styled-table tr:hover {
   background-color: #444;
 }
 
-/* 🔴 Oyun adı genişletildi */
-.styled-table .game-name {
-  width: 30%;  /* Oyun adı sütunu %30 genişlikte */
-  text-align: left;
-  padding-left: 15px;
-}
-
-/* 🔴 Puan sütunlarını eşit hale getirdik */
-.styled-table .score-column {
-  width: calc(70% / 8); /* Geriye kalan alanı 8 sütuna eşit paylaştır */
+/* Mobil Uyumlu */
+@media (max-width: 768px) {
+  .styled-table th, .styled-table td {
+    font-size: 14px;
+    padding: 8px;
+  }
 }

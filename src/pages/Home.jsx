@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebaseConfig";
 import { collection, onSnapshot } from "firebase/firestore";
-import "../styles/Home.css"; // 🔴 CSS dosyasını eklemeyi unutma!
+import "../styles/Home.css"; // 🔴 CSS dosyasını unutma!
 
 function Home() {
   const [games, setGames] = useState([]);
@@ -10,32 +10,53 @@ function Home() {
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "ratings"), (snapshot) => {
       const ratingsData = {};
+      const userLastRatings = {}; // 🔴 Kullanıcıların en son oyları burada tutulur
 
       snapshot.docs.forEach((doc) => {
-        const { game, ratings } = doc.data();
-        if (!ratingsData[game]) {
-          ratingsData[game] = { ...ratings, count: 1 };
-        } else {
-          Object.keys(ratings).forEach((key) => {
-            ratingsData[game][key] += ratings[key];
-          });
-          ratingsData[game].count += 1;
+        const { game, ratings, user, timestamp } = doc.data();
+
+        // 🔴 Aynı kullanıcı aynı oyuna birden fazla puan girdiyse, sadece en yenisini tut
+        if (!userLastRatings[game]) {
+          userLastRatings[game] = {};
+        }
+
+        if (!userLastRatings[game][user] || userLastRatings[game][user].timestamp < timestamp) {
+          userLastRatings[game][user] = { ratings, timestamp };
         }
       });
 
-      const formattedGames = Object.entries(ratingsData).map(([name, ratingData]) => {
+      // 🔴 Kullanıcıların en son puanları baz alınarak ortalama hesaplanır
+      Object.entries(userLastRatings).forEach(([game, users]) => {
+        let totalRatings = {};
+        let count = 0;
+
+        Object.values(users).forEach(({ ratings }) => {
+          count++; // 🔴 Her kullanıcının sadece en son oyunu sayılır
+          Object.keys(ratings).forEach((key) => {
+            if (!totalRatings[key]) {
+              totalRatings[key] = 0;
+            }
+            totalRatings[key] += ratings[key];
+          });
+        });
+
         const averagedRatings = Object.fromEntries(
-          Object.entries(ratingData).map(([key, value]) =>
-            key === "count" ? [key, value] : [key, (value / ratingData.count).toFixed(1)]
-          )
+          Object.entries(totalRatings).map(([key, value]) => [key, (value / count).toFixed(1)])
         );
-        return { name, ...averagedRatings };
+
+        ratingsData[game] = { ...averagedRatings, count };
       });
 
-      setGames(formattedGames);
+      // 🔹 Güncellenmiş veriyi state'e atıyoruz
+      setGames(
+        Object.entries(ratingsData).map(([name, ratingData]) => ({
+          name,
+          ...ratingData,
+        }))
+      );
     });
 
-    return () => unsubscribe(); // Dinlemeyi durdur
+    return () => unsubscribe();
   }, []);
 
   // **Sıralama fonksiyonu**
@@ -65,7 +86,7 @@ function Home() {
           <table className="styled-table">
             <thead>
               <tr>
-                <th className="game-name">Oyun Adı</th>
+                <th className="sticky-column">Oyun Adı</th>
                 {[
                   "EğlenceKeyif",
                   "StratejiDüşünme",
@@ -76,8 +97,8 @@ function Home() {
                   "SosyalEtkileşim",
                   "GenelPuan",
                 ].map((key) => (
-                  <th key={key} className="score-column" onClick={() => handleSort(key)} style={{ cursor: "pointer" }}>
-                    {key.replace(/([A-Z])/g, " $1")} {sortConfig.key === key ? (sortConfig.direction === "desc" ? "🔽" : "🔼") : ""}
+                  <th key={key} onClick={() => handleSort(key)}>
+                    {key.replace(/([A-Z])/g, " $1")}
                   </th>
                 ))}
               </tr>
@@ -85,15 +106,17 @@ function Home() {
             <tbody>
               {games.map((game, index) => (
                 <tr key={index}>
-                  <td className="game-name">{game.name}</td>
-                  <td className="score-column">{game.EğlenceKeyif || "?"}</td>
-                  <td className="score-column">{game.StratejiDüşünme || "?"}</td>
-                  <td className="score-column">{game.Basitlik || "?"}</td>
-                  <td className="score-column">{game.TekrarOynanabilirlik || "?"}</td>
-                  <td className="score-column">{game.RekabetDengesi || "?"}</td>
-                  <td className="score-column">{game.GörsellikTema || "?"}</td>
-                  <td className="score-column">{game.SosyalEtkileşim || "?"}</td>
-                  <td className="score-column">{game.GenelPuan || "?"}</td>
+                  <td className="sticky-column">
+                    {`${index + 1}. ${game.name} {${game.count || 0}}`} {/* 🔴 KAÇ KİŞİ OYLADI */}
+                  </td>
+                  <td>{game.EğlenceKeyif || "-"}</td>
+                  <td>{game.StratejiDüşünme || "-"}</td>
+                  <td>{game.Basitlik || "-"}</td>
+                  <td>{game.TekrarOynanabilirlik || "-"}</td>
+                  <td>{game.RekabetDengesi || "-"}</td>
+                  <td>{game.GörsellikTema || "-"}</td>
+                  <td>{game.SosyalEtkileşim || "-"}</td>
+                  <td>{game.GenelPuan || "-"}</td>
                 </tr>
               ))}
             </tbody>

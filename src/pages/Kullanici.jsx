@@ -38,18 +38,26 @@ function Kullanici() {
     return () => unsubscribe();
   }, []);
 
-  // Kullanıcının kendi verdiği puanları çek
-  const fetchUserRatings = (userEmail) => {
-    const q = query(collection(db, "ratings"), where("user", "==", userEmail));
-    onSnapshot(q, (snapshot) => {
-      const userRatingsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        game: doc.data().game,
-        ratings: doc.data().ratings,
-      }));
-      setUserRatings(userRatingsData);
+// Kullanıcının kendi verdiği puanları çek (sadece en güncel olanları)
+const fetchUserRatings = (userEmail) => {
+  const q = query(collection(db, "ratings"), where("user", "==", userEmail));
+  onSnapshot(q, (snapshot) => {
+    const userRatingsData = {};
+
+    snapshot.docs.forEach((doc) => {
+      const { game, ratings, timestamp } = doc.data();
+
+      // 🔴 Aynı oyuna ait sadece en güncel puanı sakla
+      if (!userRatingsData[game] || userRatingsData[game].timestamp < timestamp) {
+        userRatingsData[game] = { id: doc.id, game, ratings, timestamp };
+      }
     });
-  };
+
+    // 🔹 Object.values() kullanarak sadece en güncel puanlamaları alıyoruz
+    setUserRatings(Object.values(userRatingsData));
+  });
+};
+
 
   // Kullanıcının seçtiği puanı kaydetmesi
   const handleRatingChange = (category, value) => {
